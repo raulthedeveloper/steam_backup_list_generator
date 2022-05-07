@@ -6,14 +6,9 @@ from filehandler import FileHandler
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     file_handler = FileHandler()
-    file_handler.read_directory()
-
+    file_handler.create_skus_folder()
+    file_handler.get_skus()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
