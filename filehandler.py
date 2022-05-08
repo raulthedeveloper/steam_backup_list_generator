@@ -44,15 +44,19 @@ class FileHandler:
     def create_html_list(self):
         pass
 
+
     def move_to_skus_folder(self, file):
         self.current_sku_number += 1
 
         shutil.copy(file, self.skus_dir)
-
         # change the name here
         self.rename_file(file)
 
     def rename_file(self, file) -> None:
+        folder = Path(file).parent.parent
+
+        folder_name = str(folder).split("\\", 2)[2]
+
         old_file = os.path.join(self.backup_skus_path, "sku.sis")
 
         name_change = old_file.split(".", 1)
@@ -63,23 +67,31 @@ class FileHandler:
 
         os.rename(old_file, new_file)
 
+        self.add_folder_name(new_file, folder_name)
+
+    def add_folder_name(self, file_name, folder_name) -> None:
+        # Add folder name to txt file
+        with open(file_name, 'a+') as f:
+            f.write(folder_name)
+        f.close()
+
+
     def read_sku_txt(self) -> List[str]:
         # So this method has to loot through directory and open and close the files
         title_list = []
 
         for file in os.listdir(self.backup_skus_path):
             # Opens sku text files to extract titles
-            print(file)
             with open(os.path.join(self.backup_skus_path, file), 'r') as f:
                 lines = f.readlines()
-
                 titles = lines[2].split("and")
 
                 # Removes "name" string along  with space and " character
                 titles[0].replace("\"name\"", "").replace("\"", "").lstrip()
 
+                print(lines[-1])
                 for title in titles[1:]:
-                    title_list.append(gameBackupModel(title, "string"))
+                    title_list.append(gameBackupModel(title, lines[-1]))
 
         return title_list
 
@@ -98,4 +110,6 @@ class FileHandler:
         self.get_skus()
         # prints objects
         for game_objects in self.read_sku_txt():
-            print(game_objects.title)
+
+            print(f"title:{game_objects.title} \ndirectory:{game_objects.directory}")
+            print("------------------------------")
