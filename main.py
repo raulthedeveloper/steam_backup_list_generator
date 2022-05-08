@@ -9,6 +9,5 @@ from filehandler import FileHandler
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     file_handler = FileHandler()
-    file_handler.create_skus_folder()
-    file_handler.get_skus()
+    file_handler.start()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
