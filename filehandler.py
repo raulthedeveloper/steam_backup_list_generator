@@ -41,10 +41,6 @@ class FileHandler:
 
         return skus
 
-    def create_html_list(self):
-        pass
-
-
     def move_to_skus_folder(self, file):
         self.current_sku_number += 1
 
@@ -75,7 +71,6 @@ class FileHandler:
             f.write(folder_name)
         f.close()
 
-
     def read_sku_txt(self) -> List[str]:
         # So this method has to loot through directory and open and close the files
         title_list = []
@@ -95,7 +90,7 @@ class FileHandler:
 
         return title_list
 
-    def clear_skus_folder(self):
+    def clear_skus_folder(self) -> None:
         for file in os.listdir(self.backup_skus_path):
             print(f"{file} was removed")
             os.remove(os.path.join(self.backup_skus_path, file))
@@ -105,11 +100,22 @@ class FileHandler:
         if not (os.path.isdir(self.skus_dir)):
             os.mkdir(self.skus_dir)
 
+    def rename_backup_dirs(self):
+        for index, directory in enumerate(os.listdir(self.path)):
+            if "backup_skus" not in directory and "steam_backup_list" not in directory:
+                old_name = os.path.join(self.path, directory)
+                new_name = os.path.join(self.path, f"backup_{index}")
+                print(new_name)
+                os.rename(old_name, new_name)
+
     def start(self) -> None:
         self.create_skus_folder()
         self.get_skus()
+        self.rename_backup_dirs()
+
         # prints objects
         for game_objects in self.read_sku_txt():
 
             print(f"title:{game_objects.title} \ndirectory:{game_objects.directory}")
             print("------------------------------")
+
