@@ -13,7 +13,7 @@ class FileHandler:
     backup_skus_path = os.path.join(Path(dir_path).parent, "backup_skus")
     current_sku_number = 0
 
-    def get_skus(self) -> List[str]:
+    def get_skus(self) -> None:
 
         skus = []
         # clears folder to update sku files
@@ -39,7 +39,6 @@ class FileHandler:
                         # // its time to read the file
                         skus.append(backup_files[-1])
 
-        return skus
 
     def move_to_skus_folder(self, file):
         self.current_sku_number += 1
@@ -84,15 +83,13 @@ class FileHandler:
                 # Removes "name" string along  with space and " character
                 titles[0].replace("\"name\"", "").replace("\"", "").lstrip()
 
-                print(lines[-1])
                 for title in titles[1:]:
-                    title_list.append(gameBackupModel(title, lines[-1]))
+                    title_list.append(gameBackupModel(title.replace("â„¢", "").replace("\"", ""), lines[-1]))
 
         return title_list
 
     def clear_skus_folder(self) -> None:
         for file in os.listdir(self.backup_skus_path):
-            print(f"{file} was removed")
             os.remove(os.path.join(self.backup_skus_path, file))
 
     def create_skus_folder(self):
@@ -105,7 +102,7 @@ class FileHandler:
             if "backup_skus" not in directory and "steam_backup_list" not in directory:
                 old_name = os.path.join(self.path, directory)
                 new_name = os.path.join(self.path, f"backup_{index}")
-                print(new_name)
+
                 os.rename(old_name, new_name)
 
     def start(self) -> None:
@@ -113,9 +110,6 @@ class FileHandler:
         self.get_skus()
         self.rename_backup_dirs()
 
-        # prints objects
-        for game_objects in self.read_sku_txt():
 
-            print(f"title:{game_objects.title} \ndirectory:{game_objects.directory}")
-            print("------------------------------")
+
 
