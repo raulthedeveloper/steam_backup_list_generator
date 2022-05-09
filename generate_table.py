@@ -35,8 +35,11 @@ class GenerateTable:
                                     new_x="RIGHT", new_y="TOP", max_line_height=self.pdf.font_size)
             self.pdf.ln(self.line_height)
 
-        self.pdf.output(name=self.pdf_name, dest="F")
+        pdf = os.path.join(Path(os.path.realpath(__file__)).parent.parent, self.pdf_name)
+        print(pdf)
+
+        self.pdf.output(name=pdf, dest="F")
         # Get path of pdf file
-        pdf = os.path.join(Path(os.path.realpath(__file__)).parent, self.pdf_name)
+
         # Auto opens pdf file after generated
         os.startfile(pdf)

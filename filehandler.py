@@ -12,6 +12,7 @@ class FileHandler:
     skus_dir = os.path.join(Path(dir_path).parent, "backup_skus")
     backup_skus_path = os.path.join(Path(dir_path).parent, "backup_skus")
     current_sku_number = 0
+    back_dir_name = "Disk_1"
 
     def get_skus(self) -> None:
 
@@ -21,14 +22,14 @@ class FileHandler:
 
         # loops through folder in directory
         for folder in self.path_list:
-            if folder != "steam_backup_list":
+            if folder not in "steam_backup_list" and folder not in "steam_backup_list.pdf":
                 # backup file path
                 backup_path = os.path.join(self.path, folder)
 
                 # loops through folder in backup directory
                 for index, backup_dir in enumerate(os.listdir(backup_path)):
 
-                    if backup_dir == "Disk_1":
+                    if backup_dir == self.back_dir_name:
                         # Gets list of files in directory
                         backup_files = os.listdir(os.path.join(backup_path, backup_dir))
 
