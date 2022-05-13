@@ -1,13 +1,17 @@
+import constants
+from directory_tests import DirectoryTests
 from filehandler import FileHandler
 from generate_table import GenerateTable
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
 
 if __name__ == '__main__':
-    file_handler = FileHandler()
+    # Paste test methods here
+    
+    # rename_dirs_test = DirectoryTests(constants.CONST_BACKUP_SKUS_FOLDER_NAME, constants.CONST_PROJECT_NAME, constants.CONST_PDF_NAME)
+    # rename_dirs_test.rename_directories()
+
+    # End of test methods
+
+    file_handler = FileHandler(constants.CONST_PDF_NAME,constants.CONST_BACKUP_SKUS_FOLDER_NAME, constants.CONST_PROJECT_NAME, constants.CONST_BACKUP_FOLDER_NAME)
 
     file_handler.start()
 
