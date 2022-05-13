@@ -11,30 +11,27 @@ class FileHandler:
     sku_folder_name = ""
     pdf_name = ""
     project_name = ""
-    backup_folder_name = ""
+    backup_file_name = ""
 
     path = Path(dir_path).parent
     path_list = os.listdir(path)
     skus_dir = os.path.join(Path(dir_path).parent, "backup_skus")
     backup_skus_path = os.path.join(Path(dir_path).parent, "backup_skus")
     current_sku_number = 0
-
+    disk_1 = "Disk_1"
 
     def __init__(self, f, s, t, fth):
         self.pdf_name = f
         self.sku_folder_name = s
         self.project_name = t
-        self.backup_folder_name = fth
-        pass
+        self.backup_file_name = fth
+
 
     def get_skus(self) -> None:
 
-        skus = []
-        # clears folder to update sku files
-        self.clear_skus_folder()
-
         # loops through folder in directory
         for folder in self.path_list:
+            # check if folder if file names are in folder so they can be skipped if not backup folders
             if folder not in self.project_name and folder not in self.pdf_name:
                 # backup file path
                 backup_path = os.path.join(self.path, folder)
@@ -42,7 +39,7 @@ class FileHandler:
                 # loops through folder in backup directory
                 for index, backup_dir in enumerate(os.listdir(backup_path)):
 
-                    if backup_dir == str(self.backup_folder_name + "1"):
+                    if backup_dir == self.disk_1:
                         # Gets list of files in directory
                         backup_files = os.listdir(os.path.join(backup_path, backup_dir))
 
@@ -50,8 +47,7 @@ class FileHandler:
 
                         self.move_to_skus_folder(sku_dir)
 
-                        # // its time to read the file
-                        skus.append(backup_files[-1])
+
 
     def move_to_skus_folder(self, file):
         self.current_sku_number += 1
@@ -93,7 +89,6 @@ class FileHandler:
                 lines = f.readlines()
 
                 titles = lines[2].split("and")
-                print(titles)
 
                 # Removes "name" string along  with space and " character
                 titles[0].replace("\"name\"", "").lstrip()
@@ -114,14 +109,19 @@ class FileHandler:
 
     def rename_backup_dirs(self):
         for index, directory in enumerate(os.listdir(self.path)):
-            if self.sku_folder_name not in directory and self.project_name not in directory:
+            if self.sku_folder_name not in directory and self.project_name not in directory and self.pdf_name not in directory:
                 old_name = os.path.join(self.path, directory)
-                new_name = os.path.join(self.path, f"backup_{index}")
+                new_name = os.path.join(self.path, f"{self.backup_file_name}{index}")
 
                 if not os.path.exists(new_name):
                     os.rename(old_name, new_name)
 
     def start(self) -> None:
+        # Creates the skus folder if it doesn't exist
         self.create_skus_folder()
+
+        # clears folder to update sku files
+        self.clear_skus_folder()
+
         self.get_skus()
         self.rename_backup_dirs()

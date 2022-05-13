@@ -1,7 +1,7 @@
 import constants
 from directory_tests import DirectoryTests
 from filehandler import FileHandler
-from generate_table import GenerateTable
+from generate_report import GenerateTable
 
 if __name__ == '__main__':
     # Paste test methods here
