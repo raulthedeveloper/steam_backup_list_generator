@@ -26,7 +26,7 @@ class DirectoryTests:
                 if not os.path.exists(test_file_path):
                     os.rename(old_file_path, test_file_path)
 
-        time.sleep(3)
+        time.sleep(5)
 
     def rename_directory(self, index) -> None:
         time.sleep(2)

@@ -11,11 +11,11 @@ if __name__ == '__main__':
 
     # End of test methods
 
-    file_handler = FileHandler(constants.CONST_PDF_NAME,constants.CONST_BACKUP_SKUS_FOLDER_NAME, constants.CONST_PROJECT_NAME, constants.CONST_BACKUP_FOLDER_NAME)
+    file_handler = FileHandler(constants.CONST_PDF_NAME, constants.CONST_BACKUP_SKUS_FOLDER_NAME, constants.CONST_PROJECT_NAME, constants.CONST_BACKUP_FOLDER_NAME)
 
     file_handler.start()
 
-    generate_table = GenerateTable(file_handler.read_sku_txt())
+    generate_table = GenerateTable(file_handler.title_list)
 
     generate_table.convert_data()
 
