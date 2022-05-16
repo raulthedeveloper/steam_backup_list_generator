@@ -1,8 +1,10 @@
 import os
+import sys
 import shutil
 from typing import List
 from pathlib import Path
 from game_backup_model import gameBackupModel
+import ctypes  # An included library with Python install.
 
 
 class FileHandler:
@@ -19,7 +21,7 @@ class FileHandler:
     current_sku_number = 0
     current_backup_dir_index = 0
     disk_1 = "Disk_1"
-    title_list = []
+    __title_list = []
     path_list = []
 
     def __init__(self, f, s, t, fth):
@@ -28,8 +30,12 @@ class FileHandler:
         self.project_name = t
         self.backup_file_name = fth
 
+    @staticmethod
+    def mbox(title, text, style):
+        return ctypes.windll.user32.MessageBoxW(0, text, title, style)
+
     # Gets skus from the Disk_1 folder in each backup directory
-    def get_skus(self) -> None:
+    def __get_skus(self) -> None:
         # Gets the list of folders from backup directory
 
         # loops through folder in directory
@@ -40,26 +46,27 @@ class FileHandler:
                 backup_path = os.path.join(self.path, folder)
 
                 # loops through folder in backup directory
-                for index, backup_dir in enumerate(os.listdir(backup_path)):
+                for backup_dir in os.listdir(backup_path):
 
                     if backup_dir == self.disk_1:
                         # Gets list of sku files in Disk_1 folder in backup directory
                         sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
                         # Moves the sku.sis file to the new folder
-                        self.move_to_skus_folder(sku_dir)
+                        self.__move_to_skus_folder(sku_dir)
+                        break
 
     # receives sku files from get_skus method and copies them to skus_backup_folder
-    def move_to_skus_folder(self, file) -> None:
+    def __move_to_skus_folder(self, file) -> None:
         # Increments property to keep track of index to be used for sku file name ex. sku_1
         self.current_sku_number += 1
 
         shutil.copy(file, self.skus_dir)
 
         # changes name of sku.sis to sku_1.txt
-        self.rename_file(file)  # ex. file = D:\\Steam Backups\backup_0\Disk_1\sku.sis
+        self.__rename_file(file)  # ex. file = D:\\Steam Backups\backup_0\Disk_1\sku.sis
 
     # Changes name of sku files to be added to backup_skus ,so they have unique names
-    def rename_file(self, file) -> None:
+    def __rename_file(self, file) -> None:
         # goes up two level to get to the backup root
         folder = Path(file).parent.parent
 
@@ -77,16 +84,16 @@ class FileHandler:
         # renames the old sku.sis to its new name (sku_1.txt)
         os.rename(old_file, new_file)
 
-        self.add_backup_folder_name_to_text_file(new_file, folder_name)
+        self.__add_backup_folder_name_to_text_file(new_file, folder_name)
 
     # Add the backup folder name to text file to be later referenced for generated report
-    def add_backup_folder_name_to_text_file(self, file_name, folder_name) -> None:
+    def __add_backup_folder_name_to_text_file(self, file_name, folder_name) -> None:
         # Add folder name to txt file
         with open(file_name, 'a+') as f:
             f.write(folder_name)
         f.close()
 
-    def read_sku_txt(self) -> None:
+    def __save_sku_txt_to_list(self) -> None:
         # So this method has to loot through directory and open and close the files
         for file in os.listdir(self.backup_skus_path):
             # Opens sku text files to extract titles
@@ -99,24 +106,24 @@ class FileHandler:
                 titles[0].replace("\"name\"", "").lstrip()
 
                 for title in titles[1:]:
-                    self.title_list.append(gameBackupModel(title
-                                                           .replace("â„¢", "")
-                                                           .replace("\"", "")
-                                                           .replace("Â® ", ""),
-                                                           lines[-1]))
+                    self.__title_list.append(gameBackupModel(title
+                                                             .replace("â„¢", "")
+                                                             .replace("\"", "")
+                                                             .replace("Â® ", ""),
+                                                             lines[-1]))
 
     # Empties sku folders so new copies can be added when
-    def clear_skus_folder(self) -> None:
+    def __clear_skus_folder(self) -> None:
         for file in os.listdir(self.backup_skus_path):
             os.remove(os.path.join(self.backup_skus_path, file))
 
-    def create_skus_folder(self):
+    def __create_skus_folder(self):
 
         if not (os.path.isdir(self.skus_dir)):
             os.mkdir(self.skus_dir)
 
     # Refresh folder names so there will not be name collisions when generating new folders
-    def create_temp_folder_name(self):
+    def __create_temp_folder_name(self):
         for index, directory in enumerate(os.listdir(self.path)):
             if self.sku_folder_name not in directory and self.project_name not in directory and self.pdf_name not in directory:
                 old_name = os.path.join(self.path, directory)
@@ -124,7 +131,7 @@ class FileHandler:
 
                 os.rename(old_name, new_name)
 
-    def rename_backup_dirs(self):
+    def __rename_backup_dirs(self):
         for index, directory in enumerate(os.listdir(self.path)):
             if self.sku_folder_name not in directory and self.project_name not in directory and self.pdf_name not in directory:
                 old_name = os.path.join(self.path, directory)
@@ -133,17 +140,69 @@ class FileHandler:
                 os.rename(old_name, new_name)
                 self.current_backup_dir_index += 1
 
+    def __check_if_any_backups_directories(self):
+        test_list = []
+
+
+        if len(os.listdir(self.path)) > 1:
+            for folder in os.listdir(self.path):
+                if len(test_list) < 1:
+                    # check if folder if file names are in folder so they can be skipped if not backup folders
+                    if folder not in self.project_name and folder not in self.pdf_name:
+                        # backup file path
+                        backup_path = os.path.join(self.path, folder)
+
+                        # loops through folder in backup directory
+                        for backup_dir in os.listdir(backup_path):
+
+                            if backup_dir == self.disk_1:
+                                # Gets list of sku files in Disk_1 folder in backup directory
+                                sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
+                                # Moves the sku.sis file to the new folder
+                                if os.path.exists(sku_dir):
+                                    test_list.append(sku_dir)
+                                    break
+                                else:
+                                    FileHandler.mbox('Alert',
+                                                     f"Application can not find any sku.sys. Please place program"
+                                                     ' directory into the backup directory', 0)
+                                    sys.exit()
+                            else:
+                                FileHandler.mbox('Alert', f"Application can not find any {self.disk_1}. \nPlease place program"
+                                                          ' directory into the backup directory', 0)
+                                sys.exit()
+                else:
+                    break
+
+        else:
+            FileHandler.mbox('Alert', 'Application can not find any directories. \nPlease place program'
+                                      ' directory into the backup directory', 0)
+            sys.exit()
+
+    def get_title_list(self):
+        # raises warning if method is ran before start and if proper backup folders aren't present
+        if not self.__title_list:
+            raise Warning(
+                "Please run the start methods first to populate list, or please add proper backup directories")
+        else:
+            return self.__title_list
+
     def start(self) -> None:
-        self.create_temp_folder_name()
-        self.rename_backup_dirs()
+
+        # check if backup files exists
+
+        self.__check_if_any_backups_directories()
+
+        self.__create_temp_folder_name()
+        self.__rename_backup_dirs()
 
         self.path_list = os.listdir(self.path)
         # Creates the skus folder if it doesn't exist
-        self.create_skus_folder()
+        self.__create_skus_folder()
 
         # clears folder to update sku files
-        self.clear_skus_folder()
+        self.__clear_skus_folder()
 
-        self.get_skus()
+        self.__get_skus()
 
-        self.read_sku_txt()
+        self.__save_sku_txt_to_list()
