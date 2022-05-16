@@ -143,7 +143,6 @@ class FileHandler:
     def __check_if_any_backups_directories(self):
         test_list = []
 
-
         if len(os.listdir(self.path)) > 1:
             for folder in os.listdir(self.path):
                 if len(test_list) < 1:
@@ -163,21 +162,21 @@ class FileHandler:
                                     test_list.append(sku_dir)
                                     break
                                 else:
-                                    FileHandler.mbox('Alert',
-                                                     f"Application can not find any sku.sys. Please place program"
-                                                     ' directory into the backup directory', 0)
-                                    sys.exit()
+                                    FileHandler.alert_message("Alert", "sku.sys")
                             else:
-                                FileHandler.mbox('Alert', f"Application can not find any {self.disk_1}. \nPlease place program"
-                                                          ' directory into the backup directory', 0)
-                                sys.exit()
+                                FileHandler.alert_message("Alert", self.disk_1)
+
                 else:
                     break
 
         else:
-            FileHandler.mbox('Alert', 'Application can not find any directories. \nPlease place program'
-                                      ' directory into the backup directory', 0)
-            sys.exit()
+            FileHandler.alert_message("Alert", 'directories')
+
+    @staticmethod
+    def alert_message(heading, target):
+        FileHandler.mbox(heading, f'Application can not find any {target}. \nPlease place program'
+                                  ' directory into the backup directory', 0)
+        sys.exit()
 
     def get_title_list(self):
         # raises warning if method is ran before start and if proper backup folders aren't present

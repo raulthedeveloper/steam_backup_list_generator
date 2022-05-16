@@ -1,4 +1,5 @@
 import constants
+from error_logging import errorLogging
 from directory_tests import DirectoryTests
 from filehandler import FileHandler
 from generate_report import GenerateReport
@@ -14,6 +15,8 @@ if __name__ == '__main__':
     # rename_dirs_test.rename_directories()
 
     # End of test methods
+
+    # logger = errorLogging()
 
     file_handler = FileHandler(constants.CONST_PDF_NAME,
                                constants.CONST_BACKUP_SKUS_FOLDER_NAME,
