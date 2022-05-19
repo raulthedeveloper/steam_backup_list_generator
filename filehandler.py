@@ -177,14 +177,14 @@ class FileHandler:
                     if self.non_backup_flag not in backup_path:
                         try:
                             os.rename(backup_path, backup_path + self.non_backup_flag)
-                        except Exception as e:
+                        except:
                             # Generates random ID + number to fix duplicate folder names
                             rand_id = str(random.randrange(1, 400))
                             # New path name with the generated ID added to folder name
                             new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
 
                             os.rename(backup_path, new_path)
-                            print(str(e))
+
                             # Creates alert popup to inform the user of the changes made
                             FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
                                                       F"name duplication", 0)
@@ -208,7 +208,9 @@ class FileHandler:
         sys.exit()
 
     def __check_if_root_directory_name_is_valid(self):
-        if self.dir_path.split("\\", -1)[-1] != self.project_name:
+        path_folder_name = str(self.dir_path.split("\\", -1)[-1])
+
+        if path_folder_name != self.project_name:
             os.rename(self.dir_path, self.project_name)
 
     def get_title_list(self):
