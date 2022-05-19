@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import random
 from typing import List
 from pathlib import Path
 from game_backup_model import gameBackupModel
@@ -21,8 +22,10 @@ class FileHandler:
     current_sku_number = 0
     current_backup_dir_index = 0
     disk_1 = "Disk_1"
+    non_backup_flag = "__"
     __title_list = []
     path_list = []
+    __duplicate_file = 0
 
     def __init__(self, f, s, t, fth):
         self.pdf_name = f
@@ -129,7 +132,9 @@ class FileHandler:
                 old_name = os.path.join(self.path, directory)
                 new_name = os.path.join(self.path, f"temp - {index}")
 
-                os.rename(old_name, new_name)
+                # prevents not backup files from being renamed
+                if self.non_backup_flag not in old_name:
+                    os.rename(old_name, new_name)
 
     def __rename_backup_dirs(self):
         for index, directory in enumerate(os.listdir(self.path)):
@@ -137,46 +142,74 @@ class FileHandler:
                 old_name = os.path.join(self.path, directory)
                 new_name = os.path.join(self.path, f"{self.backup_file_name}{self.current_backup_dir_index}")
 
-                os.rename(old_name, new_name)
-                self.current_backup_dir_index += 1
+                # prevents not backup files from being renamed
+                if self.non_backup_flag not in old_name:
+                    os.rename(old_name, new_name)
+                    self.current_backup_dir_index += 1
 
     def __check_if_any_backups_directories(self):
-        test_list = []
 
         if len(os.listdir(self.path)) > 1:
             for folder in os.listdir(self.path):
-                if len(test_list) < 1:
-                    # check if folder if file names are in folder so they can be skipped if not backup folders
-                    if folder not in self.project_name and folder not in self.pdf_name:
-                        # backup file path
-                        backup_path = os.path.join(self.path, folder)
 
-                        # loops through folder in backup directory
-                        for backup_dir in os.listdir(backup_path):
+                # check if folder if file names are in folder so they can be skipped if not backup folders
+                if folder not in self.project_name and folder not in self.pdf_name and folder not in self.sku_folder_name:
+                    # backup file path
+                    backup_path = os.path.join(self.path, folder)
 
-                            if backup_dir == self.disk_1:
-                                # Gets list of sku files in Disk_1 folder in backup directory
-                                sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
-                                # Moves the sku.sis file to the new folder
-                                if os.path.exists(sku_dir):
-                                    test_list.append(sku_dir)
-                                    break
-                                else:
-                                    FileHandler.alert_message("Alert", "sku.sys")
+                if os.listdir(backup_path):
+                    # loops through folder in backup directory
+                    for backup_dir in os.listdir(backup_path):
+
+                        if backup_dir == self.disk_1:
+                            # Gets list of sku files in Disk_1 folder in backup directory
+                            sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
+
+                            if os.path.exists(sku_dir):
+                                break
                             else:
-                                FileHandler.alert_message("Alert", self.disk_1)
+                                FileHandler.alert_message("Alert", folder, backup_dir, "sku.sys", "missing_target")
+                        else:
+                            FileHandler.alert_message("Alert", folder, backup_dir, self.disk_1, "empty_target_dir")
 
                 else:
-                    break
+
+                    if self.non_backup_flag not in backup_path:
+                        try:
+                            os.rename(backup_path, backup_path + self.non_backup_flag)
+                        except Exception as e:
+                            # Generates random ID + number to fix duplicate folder names
+                            rand_id = str(random.randrange(1, 400))
+                            # New path name with the generated ID added to folder name
+                            new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
+
+                            os.rename(backup_path, new_path)
+                            print(str(e))
+                            # Creates alert popup to inform the user of the changes made
+                            FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
+                                                      F"name duplication", 0)
 
         else:
-            FileHandler.alert_message("Alert", 'directories')
+            FileHandler.alert_message("Alert", None, None, None, "no_backups_files")
 
     @staticmethod
-    def alert_message(heading, target):
-        FileHandler.mbox(heading, f'Application can not find any {target}. \nPlease place program'
-                                  ' directory into the backup directory', 0)
+    def alert_message(heading, directory, target_dir, target, message_type):
+        if message_type == "missing_target":
+            FileHandler.mbox(heading, f'Application can not find any "{target}" in "{target_dir}"  folder. '
+                                      f'within the "{directory}" directory. '
+                                      f'Please place program directory into the backup directory'
+                                      f' or remove empty "{target_dir}" folder', 0)
+        elif message_type == "empty_target_dir":
+            FileHandler.mbox(heading, f'Please remove empty "{target}" folder from "{target_dir}" folder'
+                                      f' in the "{directory}" directory'
+                                      f' or replace backup files', 0)
+        elif message_type == "no_backup_files":
+            FileHandler.mbox(heading, f'Please place program directory into the backup directory', 0)
         sys.exit()
+
+    def __check_if_root_directory_name_is_valid(self):
+        if self.dir_path.split("\\", -1)[-1] != self.project_name:
+            os.rename(self.dir_path, self.project_name)
 
     def get_title_list(self):
         # raises warning if method is ran before start and if proper backup folders aren't present
@@ -189,6 +222,7 @@ class FileHandler:
     def start(self) -> None:
 
         # check if backup files exists
+        self.__check_if_root_directory_name_is_valid()
 
         self.__check_if_any_backups_directories()
 
