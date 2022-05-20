@@ -131,7 +131,7 @@ class FileHandler:
                 new_name = os.path.join(self.path, f"temp - {index}")
 
                 # prevents not backup files from being renamed
-                if self.non_backup_flag not in old_name:
+                if self.non_backup_flag not in old_name and old_name != new_name:
                     os.rename(old_name, new_name)
 
     def __rename_backup_dirs(self):
