@@ -2,7 +2,6 @@ import os
 import sys
 import shutil
 import random
-from typing import List
 from pathlib import Path
 from game_backup_model import gameBackupModel
 import ctypes  # An included library with Python install.
@@ -25,7 +24,6 @@ class FileHandler:
     non_backup_flag = "__"
     __title_list = []
     path_list = []
-    __duplicate_file = 0
 
     def __init__(self, f, s, t, fth):
         self.pdf_name = f
@@ -157,37 +155,37 @@ class FileHandler:
                     # backup file path
                     backup_path = os.path.join(self.path, folder)
 
-                if os.listdir(backup_path):
-                    # loops through folder in backup directory
-                    for backup_dir in os.listdir(backup_path):
+                    if os.listdir(backup_path):
+                        # loops through folder in backup directory
+                        for backup_dir in os.listdir(backup_path):
 
-                        if backup_dir == self.disk_1:
-                            # Gets list of sku files in Disk_1 folder in backup directory
-                            sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
+                            if backup_dir == self.disk_1:
+                                # Gets list of sku files in Disk_1 folder in backup directory
+                                sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
 
-                            if os.path.exists(sku_dir):
-                                break
+                                if os.path.exists(sku_dir):
+                                    break
+                                else:
+                                    FileHandler.alert_message("Alert", folder, backup_dir, "sku.sys", "missing_target")
                             else:
-                                FileHandler.alert_message("Alert", folder, backup_dir, "sku.sys", "missing_target")
-                        else:
-                            FileHandler.alert_message("Alert", folder, backup_dir, self.disk_1, "empty_target_dir")
+                                FileHandler.alert_message("Alert", folder, backup_dir, self.disk_1, "empty_target_dir")
 
-                else:
+                    else:
 
-                    if self.non_backup_flag not in backup_path:
-                        try:
-                            os.rename(backup_path, backup_path + self.non_backup_flag)
-                        except:
-                            # Generates random ID + number to fix duplicate folder names
-                            rand_id = str(random.randrange(1, 400))
-                            # New path name with the generated ID added to folder name
-                            new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
+                        if self.non_backup_flag not in backup_path:
+                            try:
+                                os.rename(backup_path, backup_path + self.non_backup_flag)
+                            except:
+                                # Generates random ID + number to fix duplicate folder names
+                                rand_id = str(random.randrange(1, 400))
+                                # New path name with the generated ID added to folder name
+                                new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
 
-                            os.rename(backup_path, new_path)
+                                os.rename(backup_path, new_path)
 
-                            # Creates alert popup to inform the user of the changes made
-                            FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
-                                                      F"name duplication", 0)
+                                # Creates alert popup to inform the user of the changes made
+                                FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
+                                                          F"name duplication", 0)
 
         else:
             FileHandler.alert_message("Alert", None, None, None, "no_backups_files")
@@ -207,12 +205,6 @@ class FileHandler:
             FileHandler.mbox(heading, f'Please place program directory into the backup directory', 0)
         sys.exit()
 
-    def __check_if_root_directory_name_is_valid(self):
-        path_folder_name = str(self.dir_path.split("\\", -1)[-1])
-
-        if path_folder_name != self.project_name:
-            os.rename(self.dir_path, self.project_name)
-
     def get_title_list(self):
         # raises warning if method is ran before start and if proper backup folders aren't present
         if not self.__title_list:
@@ -223,15 +215,12 @@ class FileHandler:
 
     def start(self) -> None:
 
-        # check if backup files exists
-        self.__check_if_root_directory_name_is_valid()
-
         self.__check_if_any_backups_directories()
-
         self.__create_temp_folder_name()
         self.__rename_backup_dirs()
 
         self.path_list = os.listdir(self.path)
+
         # Creates the skus folder if it doesn't exist
         self.__create_skus_folder()
 

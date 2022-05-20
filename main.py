@@ -2,6 +2,7 @@ import constants
 from filehandler import FileHandler
 from generate_report import GenerateReport
 
+
 if __name__ == '__main__':
 
     file_handler = FileHandler(constants.CONST_PDF_NAME,
