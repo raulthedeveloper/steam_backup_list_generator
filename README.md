@@ -18,7 +18,7 @@ If you have any question, concerns or bugs please email me at raul0882@gmail.com
 For bugs please send screenshots and description.
 
 ## Download Executable
-https://drive.google.com/file/d/1hO4fG5kKn91D26kRWsujIElhYmdgSzlQ/view?usp=sharing
+https://drive.google.com/drive/folders/1o-v6OS6hULrTfSizqXkeHmVMCWmOYOZC?usp=sharing
 
 ## Instructions
 
