@@ -8,7 +8,7 @@ import ctypes  # An included library with Python install.
 
 
 class FileHandler:
-    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.getcwd()
 
     sku_folder_name = ""
     pdf_name = ""
@@ -158,8 +158,11 @@ class FileHandler:
                     if os.listdir(backup_path):
                         # loops through folder in backup directory
                         for backup_dir in os.listdir(backup_path):
+                            # allow program to skip over files that aren't the backup directory and files
+                            if os.path.isfile(os.path.join(backup_path, backup_dir)) or backup_dir != self.disk_1:
+                                pass
 
-                            if backup_dir == self.disk_1:
+                            elif backup_dir == self.disk_1:
                                 # Gets list of sku files in Disk_1 folder in backup directory
                                 sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
 
@@ -193,9 +196,8 @@ class FileHandler:
     @staticmethod
     def alert_message(heading, directory, target_dir, target, message_type):
         if message_type == "missing_target":
-            FileHandler.mbox(heading, f'Application can not find any "{target}" in "{target_dir}"  folder. '
-                                      f'within the "{directory}" directory. '
-                                      f'Please place program directory into the backup directory'
+            FileHandler.mbox(heading, f'Application can not find "{target}" in "{os.path.join(os.getcwd(),target_dir)}."'
+                                      f'Please replace steam backup files in {target_dir} directory'
                                       f' or remove empty "{target_dir}" folder', 0)
         elif message_type == "empty_target_dir":
             FileHandler.mbox(heading, f'Please remove empty "{target}" folder from "{target_dir}" folder'
