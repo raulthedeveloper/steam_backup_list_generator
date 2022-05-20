@@ -213,7 +213,8 @@ class FileHandler:
             raise Warning(
                 "Please run the start methods first to populate list, or please add proper backup directories")
         else:
-            return self.__title_list
+            # Sorts alphabetically
+            return sorted(self.__title_list, key=lambda x: x.title)
 
     def start(self) -> None:
 
