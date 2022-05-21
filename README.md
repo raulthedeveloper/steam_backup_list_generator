@@ -8,9 +8,6 @@ folders can be time consuming unorginized. So SBLG fixes this issue by generatin
 directory where you keep your backup files, to give you a quick view to find what game you want to restore.
 
 
-Also SBLG is completely open source so you know exactly what is in it. checkout the github here.
-https://github.com/raulthedeveloper/steam_backup_list_generator
-
 Currently SBLG is only compatable with windows. In the future a linux and mac version will be released.
 
 If you have any question, concerns or bugs please email me at raul0882@gmail.com
