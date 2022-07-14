@@ -145,6 +145,39 @@ class FileHandler:
                     os.rename(old_name, new_name)
                     self.current_backup_dir_index += 1
 
+    def __scan_backup_folders(self, backup_path, folder):
+        for backup_dir in os.listdir(backup_path):
+            # allow program to skip over files that aren't the backup directory and files
+            if os.path.isfile(os.path.join(backup_path, backup_dir)) or backup_dir != self.disk_1:
+                pass
+
+            elif backup_dir == self.disk_1:
+                # Gets list of sku files in Disk_1 folder in backup directory
+                sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
+
+                if os.path.exists(sku_dir):
+                    break
+                else:
+                    FileHandler.alert_message("Alert", folder, backup_dir, "sku.sys", "missing_target")
+            else:
+                FileHandler.alert_message("Alert", folder, backup_dir, self.disk_1, "empty_target_dir")
+
+    def __check_for_no_backup_flag(self, backup_path):
+        if self.non_backup_flag not in backup_path:
+            try:
+                os.rename(backup_path, backup_path + self.non_backup_flag)
+            except:
+                # Generates random ID + number to fix duplicate folder names
+                rand_id = str(random.randrange(1, 400))
+                # New path name with the generated ID added to folder name
+                new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
+
+                os.rename(backup_path, new_path)
+
+                # Creates alert popup to inform the user of the changes made
+                FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
+                                          F"name duplication", 0)
+
     def __check_if_any_backups_directories(self):
 
         if len(os.listdir(self.path)) > 1:
@@ -157,38 +190,10 @@ class FileHandler:
 
                     if os.listdir(backup_path):
                         # loops through folder in backup directory
-                        for backup_dir in os.listdir(backup_path):
-                            # allow program to skip over files that aren't the backup directory and files
-                            if os.path.isfile(os.path.join(backup_path, backup_dir)) or backup_dir != self.disk_1:
-                                pass
-
-                            elif backup_dir == self.disk_1:
-                                # Gets list of sku files in Disk_1 folder in backup directory
-                                sku_dir = os.path.join(os.path.join(backup_path, backup_dir), "sku.sis")
-
-                                if os.path.exists(sku_dir):
-                                    break
-                                else:
-                                    FileHandler.alert_message("Alert", folder, backup_dir, "sku.sys", "missing_target")
-                            else:
-                                FileHandler.alert_message("Alert", folder, backup_dir, self.disk_1, "empty_target_dir")
+                        self.__scan_backup_folders(backup_path, folder)
 
                     else:
-
-                        if self.non_backup_flag not in backup_path:
-                            try:
-                                os.rename(backup_path, backup_path + self.non_backup_flag)
-                            except:
-                                # Generates random ID + number to fix duplicate folder names
-                                rand_id = str(random.randrange(1, 400))
-                                # New path name with the generated ID added to folder name
-                                new_path = F"{backup_path}-ID{rand_id}{self.non_backup_flag}"
-
-                                os.rename(backup_path, new_path)
-
-                                # Creates alert popup to inform the user of the changes made
-                                FileHandler.mbox("Alert", F"{backup_path} was changed to {new_path} because of "
-                                                          F"name duplication", 0)
+                        self.__check_for_no_backup_flag(backup_path)
 
         else:
             FileHandler.alert_message("Alert", None, None, None, "no_backups_files")
@@ -196,9 +201,10 @@ class FileHandler:
     @staticmethod
     def alert_message(heading, directory, target_dir, target, message_type):
         if message_type == "missing_target":
-            FileHandler.mbox(heading, f'Application can not find "{target}" in "{os.path.join(os.getcwd(),target_dir)}."'
-                                      f'Please replace steam backup files in {target_dir} directory'
-                                      f' or remove empty "{target_dir}" folder', 0)
+            FileHandler.mbox(heading,
+                             f'Application can not find "{target}" in "{os.path.join(os.getcwd(), target_dir)}."'
+                             f'Please replace steam backup files in {target_dir} directory'
+                             f' or remove empty "{target_dir}" folder', 0)
         elif message_type == "empty_target_dir":
             FileHandler.mbox(heading, f'Please remove empty "{target}" folder from "{target_dir}" folder'
                                       f' in the "{directory}" directory'
